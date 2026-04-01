@@ -1,0 +1,17 @@
+### Example Test Case: Single-Core Execution
+
+This test validates the basic 5-stage pipeline, instruction fetching, and register writeback functionality in an isolated single-core scenario, ensuring the ALU and hazard detection logic function correctly without memory subsystem interference.
+
+**1. System Initialization**
+* **Core 0 (Active):** Loaded with a specific program sequence of hex-encoded instructions (e.g., `00201000`, `0B165007`, `09100022`, `05A65000`).
+* **Cores 1-3 (Idle):** Loaded entirely with `14000000` (acting as a `HALT`/`NOP`), keeping their pipelines inactive.
+* **Main Memory:** Initialized (`memin.txt`) with a spaced pattern ending in a sequential array counting from `00000001` to `000000FF`.
+
+**2. Pipeline Execution & Performance**
+* **Core 0:** Executed 9 instructions over 16 cycles. The hazard detection unit successfully intervened to handle data dependencies, resulting in 3 decode stalls and 0 memory stalls. The trace files confirm instructions advancing dynamically through all stages (PC `000` to `026`).
+* **Cores 1-3:** Executed only 1 instruction over 5 cycles before halting. Traces show an immediate pipeline halt, marked by empty (`---`) stages after the initial fetch.
+
+**3. Final State Verification**
+* **Register File:** Core 0 successfully computed and wrote values to three target registers: `R1 = 00000100`, `R2 = 00000200`, and `R3 = 00000010`. Registers for Cores 1-3 remained strictly at zero.
+* **Cache Subsystem:** Because no memory instructions were executed, the Data SRAM (`dsram0-3.txt`) and Tag SRAM (`tsram0-3.txt`) remained completely unallocated (filled with zeros), confirming no erroneous cache allocations occurred.
+* **Main Memory:** The main memory remained fully unmodified (`memout.txt` is perfectly identical to `memin.txt`), confirming no unintentional memory leaks or wild writes occurred during execution.
